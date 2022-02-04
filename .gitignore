@@ -146,3 +146,6 @@ dumpstack_*out
 build.tmp.binaries/
 tasklist.json
 modules/esp_idf
+.clang*
+.cache
+compile_commands.json
