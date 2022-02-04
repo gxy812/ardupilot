@@ -270,43 +270,6 @@ void RangeFinder::init(enum Rotation orientation_default)
     }
     init_done = true;
 
-    {
-        const uint8_t I2C_SLAVE_DEVICE_ADDRESS = 0x8A;
-        auto i2c_bus = hal.i2c_mgr->get_device(3, 0x70);
-
-        uint8_t default_address = 50;
-        uint8_t temp = 0xFF;
-        uint8_t found = 0;
-        uint8_t final_address = 0;
-        i2c_bus->get_semaphore()->take_blocking();
-        // test by enabling all i2c ports on mux
-        if (i2c_bus->transfer(&temp, 1, nullptr, 0)) {
-            // assign addresses
-            for (uint8_t i = 0; i < 8; i++) {
-                uint8_t local_address = 1 << i;
-                i2c_bus->set_address(0x70);
-                i2c_bus->transfer(&local_address, 1, nullptr, 0);
-                i2c_bus->set_address(0x29);
-                if (i2c_bus->write_register(I2C_SLAVE_DEVICE_ADDRESS, default_address)) {
-                    hal.console->printf("Device %d address is now %d", i, default_address);
-                    final_address |= local_address;
-                    default_address++;
-                    found++;
-                }
-            }
-            i2c_bus->transfer(&final_address, 1, nullptr, 0); // connect all channels
-            hal.console->printf("Found %d devices on mux", found);
-            i2c_bus->set_address(0x29);
-            if (i2c_bus->read_registers(0, &temp, 1)) {
-                hal.console->println("Problem assigning addresses!");
-            }
-        }
-        else {
-            hal.console->println("No devices found!");
-        }
-        i2c_bus->get_semaphore()->give();
-    }
-
     convert_params();
 
     // set orientation defaults
