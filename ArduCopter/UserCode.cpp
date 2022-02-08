@@ -9,8 +9,11 @@ void Copter::userhook_init()
     // this will be called once at start-up
 
     // turn on GPIO pin for use as 3v3
-    hal.gpio->pinMode(50, HAL_GPIO_OUTPUT);
-    hal.gpio->write(50, TRUE);
+    hal.gpio->pinMode(54, HAL_GPIO_OUTPUT);
+    hal.gpio->write(54, TRUE);
+
+    // add time for devices to turn on
+    hal.scheduler->delay(100);
 
     // mux init
     const uint8_t I2C_SLAVE_DEVICE_ADDRESS = 0x8A;
@@ -18,9 +21,10 @@ void Copter::userhook_init()
 
     uint8_t default_address = 50;
     uint8_t temp = 0xFF;
-    uint8_t found = 0;
     uint8_t final_address = 0;
+    uint8_t found = 0;
     i2c_bus->get_semaphore()->take_blocking();
+    i2c_bus->set_retries(10);
     // test by enabling all i2c ports on mux
     // allows debugging using lua scripts (i2c_scan) if anything fails
     if (i2c_bus->transfer(&temp, 1, nullptr, 0)) {
@@ -29,6 +33,7 @@ void Copter::userhook_init()
             uint8_t local_address = 1 << i;
             i2c_bus->set_address(0x70);
             i2c_bus->transfer(&local_address, 1, nullptr, 0);
+            hal.scheduler->delay(50);
             i2c_bus->set_address(0x29);
             if (i2c_bus->write_register(I2C_SLAVE_DEVICE_ADDRESS, default_address)) {
                 hal.console->printf("Device %d address is now %d", i, default_address);
@@ -37,17 +42,21 @@ void Copter::userhook_init()
                 found++;
             }
         }
+        temp = 0xFF;
         i2c_bus->transfer(&final_address, 1, nullptr, 0); // connect all channels
+        hal.scheduler->delay(50);
         hal.console->printf("Found %d devices on mux", found);
         i2c_bus->set_address(0x29);
-        if (i2c_bus->read_registers(0, &temp, 1)) {
-            hal.console->println("Problem assigning addresses!");
+        if (i2c_bus->read_registers(I2C_SLAVE_DEVICE_ADDRESS, &temp, 1)) {
+            hal.console->printf("\nProblem assigning addresses!\n");
         }
     }
     else {
         hal.console->println("No devices found!");
     }
+    i2c_bus->set_address(0x70);
     i2c_bus->get_semaphore()->give();
+    hal.scheduler->delay(500);
 }
 #endif
 
@@ -83,6 +92,7 @@ void Copter::userhook_SlowLoop()
 void Copter::userhook_SuperSlowLoop()
 {
     // put your 1Hz code here
+    //hal.console->printf("\nFound %d devices on mux\n", Mux_found);
 }
 #endif
 
