@@ -816,6 +816,28 @@ Vector3f AP_AHRS::wind_estimate(void) const
     return wind;
 }
 
+/*
+  return true if a real airspeed sensor is enabled
+ */
+bool AP_AHRS::airspeed_sensor_enabled(void) const
+{
+    if (!dcm.airspeed_sensor_enabled()) {
+        return false;
+    }
+    nav_filter_status filter_status;
+    if (fly_forward &&
+        hal.util->get_soft_armed() &&
+        get_filter_status(filter_status) &&
+        filter_status.flags.rejecting_airspeed) {
+        // special case for when backend is rejecting airspeed data in
+        // an armed fly_forward state. Then the airspeed data is
+        // highly suspect and will be rejected. We will use the
+        // synthentic airspeed instead
+        return false;
+    }
+    return true;
+}
+
 // return an airspeed estimate if available. return true
 // if we have an estimate
 bool AP_AHRS::airspeed_estimate(float &airspeed_ret) const
@@ -2815,7 +2837,7 @@ bool AP_AHRS::is_vibration_affected() const
 }
 
 // get_variances - provides the innovations normalised using the innovation variance where a value of 0
-// indicates prefect consistency between the measurement and the EKF solution and a value of of 1 is the maximum
+// indicates prefect consistency between the measurement and the EKF solution and a value of 1 is the maximum
 // inconsistency that will be accpeted by the filter
 // boolean false is returned if variances are not available
 bool AP_AHRS::get_variances(float &velVar, float &posVar, float &hgtVar, Vector3f &magVar, float &tasVar) const

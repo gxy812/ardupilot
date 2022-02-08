@@ -57,10 +57,13 @@ def topdir():
     d = os.path.dirname(d)
     return d
 
+def relcurdir(path):
+    """Return a path relative to current dir"""
+    return os.path.relpath(path, os.getcwd())
 
 def reltopdir(path):
     """Return a path relative to topdir()."""
-    return os.path.relpath(path, topdir())
+    return os.path.normpath(os.path.join(topdir(), path))
 
 
 def run_cmd(cmd, directory=".", show=True, output=False, checkfail=True):

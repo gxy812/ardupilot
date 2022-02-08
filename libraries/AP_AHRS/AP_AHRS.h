@@ -158,10 +158,7 @@ public:
 
     // return true if airspeed comes from an airspeed sensor, as
     // opposed to an IMU estimate
-    bool airspeed_sensor_enabled(void) const {
-        // FIXME: make this "using_airspeed_sensor"?
-        return dcm.airspeed_sensor_enabled();
-    }
+    bool airspeed_sensor_enabled(void) const;
 
     // return true if airspeed comes from a specific airspeed sensor, as
     // opposed to an IMU estimate
@@ -327,7 +324,7 @@ public:
     bool is_vibration_affected() const;
 
     // get_variances - provides the innovations normalised using the innovation variance where a value of 0
-    // indicates perfect consistency between the measurement and the EKF solution and a value of of 1 is the maximum
+    // indicates perfect consistency between the measurement and the EKF solution and a value of 1 is the maximum
     // inconsistency that will be accepted by the filter
     // boolean false is returned if variances are not available
     bool get_variances(float &velVar, float &posVar, float &hgtVar, Vector3f &magVar, float &tasVar) const;
