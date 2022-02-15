@@ -13,10 +13,8 @@
 //#define AC_RALLY              DISABLED            // disable rally points library (must also disable terrain which relies on rally)
 //#define AC_AVOID_ENABLED      DISABLED            // disable stop-at-fence library
 //#define AC_OAPATHPLANNER_ENABLED DISABLED         // disable path planning around obstacles
-//#define AC_TERRAIN            DISABLED            // disable terrain library
 //#define PARACHUTE             DISABLED            // disable parachute release to save 1k of flash
 //#define NAV_GUIDED            DISABLED            // disable external navigation computer ability to control vehicle through MAV_CMD_NAV_GUIDED mission commands
-//#define OPTFLOW               DISABLED            // disable optical flow sensor to save 5K of flash space
 //#define FRSKY_TELEM_ENABLED   DISABLED            // disable FRSky telemetry
 //#define PRECISION_LANDING     DISABLED            // disable precision landing using companion computer or IRLock sensor
 //#define BEACON_ENABLED        DISABLED            // disable beacon support
@@ -43,7 +41,6 @@
 //#define MODE_THROW_ENABLED    DISABLED            // disable throw mode support
 //#define MODE_ZIGZAG_ENABLED   DISABLED            // disable zigzag mode support
 //#define OSD_ENABLED           DISABLED            // disable on-screen-display support
-//#define BUTTON_ENABLED        DISABLED            // disable button support
 //#define LANDING_GEAR_ENABLED  DISABLED            // disable landing gear support
 
 // features below are disabled by default on all boards
@@ -56,13 +53,13 @@
 
 // User Hooks : For User Developed code that you wish to run
 // Put your variable definitions into the UserVariables.h file (or another file name and then change the #define below).
-//#define USERHOOK_VARIABLES "UserVariables.h"
+#define USERHOOK_VARIABLES "UserVariables.h"
 // Put your custom code into the UserCode.cpp with function names matching those listed below and ensure the appropriate #define below is uncommented below
-//#define USERHOOK_INIT userhook_init();                      // for code to be run once at startup
+#define USERHOOK_INIT userhook_init(); // for code to be run once at startup
 //#define USERHOOK_FASTLOOP userhook_FastLoop();            // for code to be run at 100hz
 //#define USERHOOK_50HZLOOP userhook_50Hz();                  // for code to be run at 50hz
 //#define USERHOOK_MEDIUMLOOP userhook_MediumLoop();        // for code to be run at 10hz
 //#define USERHOOK_SLOWLOOP userhook_SlowLoop();            // for code to be run at 3.3hz
-//#define USERHOOK_SUPERSLOWLOOP userhook_SuperSlowLoop();  // for code to be run at 1hz
+#define USERHOOK_SUPERSLOWLOOP userhook_SuperSlowLoop(); // for code to be run at 1hz
 //#define USERHOOK_AUXSWITCH ENABLED                        // for code to handle user aux switches
 //#define USER_PARAMS_ENABLED ENABLED                       // to enable user parameters
