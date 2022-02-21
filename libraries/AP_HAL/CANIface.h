@@ -35,7 +35,10 @@ struct AP_HAL::CANFrame {
     static const uint8_t MaxDataLen = 8;
 
     uint32_t id;                ///< CAN ID with flags (above)
-    uint8_t data[MaxDataLen];
+    union {
+        uint8_t data[MaxDataLen];
+        uint32_t data_32[MaxDataLen/4];
+    };
     uint8_t dlc;                ///< Data Length Code
 
     CANFrame() :
@@ -222,8 +225,6 @@ protected:
     virtual bool add_to_rx_queue(const CanRxItem &rx_item) = 0;
 
     FrameCb frame_callback;
-    uint8_t frame_counter;
-    uint32_t last_callback_enable_ms;
     uint32_t bitrate_;
     OperatingMode mode_;
 };

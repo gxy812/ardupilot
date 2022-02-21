@@ -990,6 +990,11 @@ def write_mcu_config(f):
     f.write('\n// APJ board ID (for bootloaders)\n')
     f.write('#define APJ_BOARD_ID %s\n' % get_config('APJ_BOARD_ID'))
 
+    # support ALT_BOARD_ID for px4 firmware
+    alt_id = get_config('ALT_BOARD_ID', required=False)
+    if alt_id is not None:
+        f.write('#define ALT_BOARD_ID %s\n' % alt_id)
+
     f.write('''
 #ifndef HAL_ENABLE_THREAD_STATISTICS
 #define HAL_ENABLE_THREAD_STATISTICS FALSE
@@ -1986,7 +1991,7 @@ def write_PWM_config(f, ordered_timers):
            {%s, NULL}, \\
            {%s, NULL}, \\
            {%s, NULL}  \\
-          }, 0, 0}, &PWMD%u, \\
+          }, 0, 0}, &PWMD%u, %u, \\
           HAL_PWM%u_DMA_CONFIG, \\%s
           { %u, %u, %u, %u }, \\
           { %s, %s, %s, %s }}\n''' %
@@ -1994,7 +1999,7 @@ def write_PWM_config(f, ordered_timers):
                  chan_list[0], chan_list[1], chan_list[2], chan_list[3],
                  pwm_clock, period,
                  chan_mode[0], chan_mode[1], chan_mode[2], chan_mode[3],
-                 n, n, hal_icu_cfg,
+                 n, n, n, hal_icu_cfg,
                  alt_functions[0], alt_functions[1], alt_functions[2], alt_functions[3],
                  pal_lines[0], pal_lines[1], pal_lines[2], pal_lines[3]))
     f.write('#define HAL_PWM_GROUPS %s\n\n' % ','.join(groups))

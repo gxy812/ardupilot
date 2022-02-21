@@ -1051,6 +1051,7 @@ bool GCS_MAVLINK::do_try_send_message(const ap_message id)
     if (telemetry_delayed()) {
         return false;
     }
+    WITH_SEMAPHORE(comm_chan_lock(chan));
 #if GCS_DEBUG_SEND_MESSAGE_TIMINGS
     void *data = hal.scheduler->disable_interrupts_save();
     uint32_t start_send_message_us = AP_HAL::micros();
@@ -2052,12 +2053,16 @@ void GCS_MAVLINK::service_statustext(void)
 {
     GCS::StatusTextQueue &_statustext_queue = gcs().statustext_queue();
 
+    WITH_SEMAPHORE(comm_chan_lock(chan));
+
     const uint8_t chan_bit = (1U<<chan);
     // note the lack of idx++ here.  We may remove the iteration item
     // from the queue as the last thing we do, in which case we don't
     // want to move idx.
     const uint16_t payload_size = PAYLOAD_SIZE(chan, STATUSTEXT);
     for (uint8_t idx=0; idx<_statustext_queue.available(); ) {
+        WITH_SEMAPHORE(comm_chan_lock(chan));
+
         if (txspace() < payload_size) {
             break;
         }
@@ -3715,6 +3720,12 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
 
     case MAVLINK_MSG_ID_CAN_FRAME:
         handle_can_frame(msg);
+        break;
+
+    case MAVLINK_MSG_ID_CAN_FILTER_MODIFY:
+#if HAL_CANMANAGER_ENABLED
+        AP::can().handle_can_filter_modify(msg);
+#endif
         break;
     }
 

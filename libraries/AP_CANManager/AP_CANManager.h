@@ -25,7 +25,6 @@
 #include "AP_SLCANIface.h"
 #include "AP_CANDriver.h"
 #include <GCS_MAVLink/GCS.h>
-//#include <GCS_MAVLink/GCS_MAVLink.h>
 
 class AP_CANManager
 {
@@ -112,6 +111,7 @@ public:
 #if HAL_GCS_ENABLED
     bool handle_can_forward(mavlink_channel_t chan, const mavlink_command_long_t &packet, const mavlink_message_t &msg);
     void handle_can_frame(const mavlink_message_t &msg) const;
+    void handle_can_filter_modify(const mavlink_message_t &msg);
 #endif
 
 private:
@@ -180,6 +180,11 @@ private:
         mavlink_channel_t chan;
         uint8_t system_id;
         uint8_t component_id;
+        uint8_t frame_counter;
+        uint32_t last_callback_enable_ms;
+        HAL_Semaphore sem;
+        uint16_t num_filter_ids;
+        uint16_t *filter_ids;
     } can_forward;
 #endif // HAL_GCS_ENABLED
 };

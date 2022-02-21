@@ -58,8 +58,9 @@ bool AP_HAL::CANFrame::priorityHigherThan(const CANFrame& rhs) const
  */
 int16_t AP_HAL::CANIface::receive(CANFrame& out_frame, uint64_t& out_ts_monotonic, CanIOFlags& out_flags)
 {
-    if (frame_callback && (out_flags & IsMAVCAN)==0) {
-        frame_callback(get_iface_num(), out_frame);
+    auto cb = frame_callback;
+    if (cb && (out_flags & IsMAVCAN)==0) {
+        cb(get_iface_num(), out_frame);
     }
     return 1;
 }
@@ -69,19 +70,10 @@ int16_t AP_HAL::CANIface::receive(CANFrame& out_frame, uint64_t& out_ts_monotoni
  */
 int16_t AP_HAL::CANIface::send(const CANFrame& frame, uint64_t tx_deadline, CanIOFlags flags)
 {
-    if (frame_callback) {
+    auto cb = frame_callback;
+    if (cb) {
         if ((flags & IsMAVCAN) == 0) {
-            if (frame_counter++ == 100) {
-                // check every 100 frames for disabling CAN_FRAME send
-                // we stop sending after 5s if the client stops
-                // sending MAV_CMD_CAN_FORWARD requests
-                if (AP_HAL::millis() - last_callback_enable_ms > 5000) {
-                    frame_callback = nullptr;
-                    return 1;
-                }
-                frame_counter = 0;
-            }
-            frame_callback(get_iface_num(), frame);
+            cb(get_iface_num(), frame);
         } else {
             CanRxItem rx_item;
             rx_item.frame = frame;
@@ -98,7 +90,6 @@ int16_t AP_HAL::CANIface::send(const CANFrame& frame, uint64_t tx_deadline, CanI
  */
 bool AP_HAL::CANIface::register_frame_callback(FrameCb cb)
 {
-    last_callback_enable_ms = AP_HAL::millis();
     frame_callback = cb;
     return true;
 }
